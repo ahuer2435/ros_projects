@@ -1,0 +1,4 @@
+1. 在rviz中添加机器人模型。
+（1） 参考文件：xiaoqiang_udrf下的display.launch,xiaoqiang_udrf.URDF,udrf.rviz.
+（2） 在display.launch中设置ros 参数robot_description，这个参数应该是ros服务器上的一个默认参数，在这里是设置这个参数。写参数robot_description。
+（2） 在udrf.rviz文件中，使用robot_description设置rviz/RobotModel下的Robot Description。读参数robot_description，使用。
