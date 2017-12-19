@@ -6,8 +6,10 @@
 2.说明：
 （1） 实验是基于xiaoqiang_udrf包，创建robot_model_urdf，目的理解如何在rviz中添加机器人模型。
 （2） 如果没有修改urdf文件，在rviz中添加robotmodel时，会出错： Error: package 'xiaoqiang_udrf' not found，这是因为在urdf文件中引用了xiaoqiang_udrf包中的meshes下的模型文件，
-可以将meshes拷贝到robot_model_urdf下，然后修改urdf中的文件路径即可。机器人模型不一定需要这种模型文件，可以简单设置<geometry>项实现。
+可以将meshes拷贝到robot_model_urdf下，然后修改urdf中的文件路径即可。
 （3） use_sim：可以打开关节调节器，还是比较有用的。
 （4） gui：是使用rviz需要打开的。
-（5） 很多错误和环境有关，所以在出错时，可以先实现source devel/setup.bash。
-（6） 
+
+（1） 参考文件：xiaoqiang_udrf下的display.launch,xiaoqiang_udrf.URDF,udrf.rviz.
+（2） 在display.launch中设置ros 参数robot_description，这个参数应该是ros服务器上的一个默认参数，在这里是设置这个参数。写参数robot_description。
+（2） 在udrf.rviz文件中，使用robot_description设置rviz/RobotModel下的Robot Description。读参数robot_description，使用。
