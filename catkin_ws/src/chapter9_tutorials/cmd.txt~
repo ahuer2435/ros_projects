@@ -1,6 +1,6 @@
 1.
 roslaunch chapter9_tutorials chapter9_configuration_gazebo.launch
-roslaunch chapter9_tutorials amcl_dwa.launch map=map.yaml
+roslaunch chapter9_tutorials amcl_dwa.launch map:=map.yaml
 #roslaunch chapter9_tutorials move_base.launch
 rosrun chapter9_tutorials sendGoals
 学习rviz导航

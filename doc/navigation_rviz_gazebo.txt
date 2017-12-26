@@ -1,0 +1,3 @@
+roslaunch navigation_test gazebo_rviz.launch
+roslaunch navigation_test move_base.launch
+rosrun teleop_twist_keyboard teleop_twist_keyboard.py
