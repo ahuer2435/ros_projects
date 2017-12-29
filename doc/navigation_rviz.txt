@@ -1,0 +1,45 @@
+在rviz和gazebo中构建用于导航和手动控制的机器人模型：
+
+一. 启动命令：
+roslaunch navigation_test gazebo_rviz.launch
+roslaunch navigation_test move_base.launch
+rosrun teleop_twist_keyboard teleop_twist_keyboard.py
+
+二. 构建仿真平台：
+1. gazebo_rviz.launch文件：
+用于构建整个仿真平台，主要包含三个部分，机器人模型robot1_base_04.xacro、gazebo配置启动，rviz配置启动。
+
+2. 机器人模型robot1_base_04.xacro：
+（1） 设定机器人本体坐标系关系。
+（2） 利用gazebo插件，引入激光雷达、摄像头和运动驱动器插件robot.gazebo。
+
+3. 可视化navigation.rviz：
+主要是设置robot_description即可，这是相当于机器人模型。
+
+4. gazebo配置启动：
+（1） 启动empty_world.launch，相当于开启gazebo服务器和客户端。这步是使用gazebo所必需的。
+（2） 启动spawn_model节点。
+
+三.定位导航节点：
+1. move_base.launch文件：
+用于启动定位导航节点，主要包含加载地图，定位和导航三个部分。
+
+2. 加载地图：
+使用map_server，以地图配置文件为参数，即可。
+
+3. 启动定位节点：
+使用navigation本身提供的amcl_diff.launch。这些参数都是默认参数，实际使用需要根据自己的情况调整。
+
+4.启动导航节点：
+使用move_base节点实现，需要一些配置文件：
+costmap_common_params.yaml：代价地图通用参数，包含局部地图和全局地图。
+local_costmap_params.yaml：局部代价地图参数，提供了/odom到/base_footprint坐标系关系。
+global_costmap_params.yaml：全局代价地图参数，提供了/map到/base_footprint坐标系关系。
+base_local_planner_params.yaml：局部规划器参数。
+move_base_params.yaml：指定局部和全局规划器类型。
+
+
+四.运动控制：
+4. teleop_twist_keyboard.py文件：
+启动键盘命令发布器。
+

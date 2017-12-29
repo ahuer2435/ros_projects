@@ -20,6 +20,6 @@
 
   <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -z 0.1 -model robot_model" respawn="false" output="screen"/>
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find chapter9_tutorials)/launch/navigation.rviz"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find navigation_test)/launch/navigation.rviz"/>
 </launch>
 
