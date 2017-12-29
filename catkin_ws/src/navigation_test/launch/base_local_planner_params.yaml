@@ -1,4 +1,4 @@
-DWAPlannerROS:                          #TrajectoryPlannerROS:
+TrajectoryPlannerROS:                   #DWAPlannerROS:
   controller_frequency: 3.0             #局部路径更新频率
   controller_patiente: 15.0             #不明白
   max_vel_x: 0.2                        #最大x轴线速度m/s

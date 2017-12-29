@@ -14,7 +14,7 @@
     <rosparam file="$(find navigation_test)/launch/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find navigation_test)/launch/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find navigation_test)/launch/base_local_planner_params.yaml" command="load" />
-    <rosparam file="$(find navigation_test)/launch/move_base_params.yaml" command="load" />
+    <!--rosparam file="$(find navigation_test)/launch/move_base_params.yaml" command="load" /-->
   </node>
 
 
