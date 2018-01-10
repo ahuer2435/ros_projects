@@ -1,0 +1,13 @@
+1. 简介：
+slam_gmapping是一个开源ros包，利用激光雷达和里程计数据构建地图。
+
+2. 使用：
+在包mapping_test中封装了建图操作，使用如下命令即可完成构建地图。
+（1） roslaunch mapping_test gazebo_mapping_robot_2.launch
+（2） rosrun teleop_twist_keyboard teleop_twist_keyboard.py
+（3） rosrun map_server map_saver -f map_name
+
+3.步骤：
+（1） 在gazebo中，添加障碍物，有些障碍物因为版本问题可能不兼容，使用几个工具栏中的正方体、球体即可。
+（2） 利用第二指令，鼠标控制，移动机器人，即可构建地图。
+（3） 利用第三条指令，构建结束时，保存地图。
