@@ -1,0 +1,7 @@
+1. 下载ndt_fuser：https://github.com/ahuer2435/perception_oru
+2. 下载velodyne：https://github.com/ahuer2435/velodyne
+3. 安装velodyne包：sudo apt-get install ros-indigo-velodyne-pointcloud.
+
+4. 测试实例：
+http://wiki.ros.org/ndt_fuser
+http://wiki.ros.org/perception_oru/
