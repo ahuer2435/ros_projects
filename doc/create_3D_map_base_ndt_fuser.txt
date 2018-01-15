@@ -5,3 +5,5 @@
 4. 测试实例：
 http://wiki.ros.org/ndt_fuser
 http://wiki.ros.org/perception_oru/
+
+5. 基于rviz实现仿真3D建图，功能他们实现了，但是现在并没有开放。

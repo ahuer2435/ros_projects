@@ -1,0 +1,4 @@
+1. 建图算法：ndt_mapping.cpp所以，创建mapping_auto包，和ndt_mapping.cpp节点。
+2. 节点依赖的消息：ConfigNdtMapping.msg和ConfigNdtMappingOutput.msg
+3. 依赖包：pcl_ros、velodyne_pointcloud、ndt_cpu，第一个是ros系统自带，后两个需要自己下载，可以使用autoware中的，封装为包。
+至此可以编译
