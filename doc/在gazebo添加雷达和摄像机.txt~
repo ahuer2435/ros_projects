@@ -1,1 +1,0 @@
-roslaunch robot_model_urdf gazebo.launch model:="`rospack find robot_model_urdf`/robot/robot1_base_03_b.xacro"
