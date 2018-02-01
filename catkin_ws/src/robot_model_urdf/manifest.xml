@@ -1,6 +1,0 @@
-<package>
-  <description brief="robot_model_urdf">robot_model_urdf</description>
-  <depend package="gazebo" />
-  <author>me</author>
-  <license>BSD</license>
-</package>
