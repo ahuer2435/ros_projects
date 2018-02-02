@@ -1,0 +1,10 @@
+Header header
+float64 throttle
+float64 brake
+float64 steering_rate
+float64 steering_target
+bool parking_brake
+float64 speed
+float64 acceleration
+int32 gear
+int32 mode

@@ -1,0 +1,10 @@
+Header header
+double throttle
+double brake
+double steering_rate
+double steering_target
+bool parking_brake
+double speed
+double acceleration
+int32 gear
+int mode
