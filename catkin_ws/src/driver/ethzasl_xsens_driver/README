@@ -1,0 +1,9 @@
+ROS Driver for XSens MT/MTi/MTi-G devices.
+
+See: http://ros.org/wiki/ethzasl_xsens_driver
+
+1. 此驱动支持MT/MTi/MTi-G设备，可将设备输出的数据转化为sensor_msgs/Imu标准ros格式。
+2. 启动命令：roslaunch xsens_driver xsens_driver.launch
+3. 说明：
+（1） 支持gps数据的处理，转化为sensor_msgs/NavSatFix，没有也没关系，纯imu数据的格式转化。
+（2） 借口支持串口，usb转串口。
