@@ -1,0 +1,2 @@
+1. 在gps_umd/gps_common/include/gps_common/conversions.h中LLtoUTM函数可以将sensor_msgs/NavSatFix格式中的经纬度转化为北向和东向的UTM坐标，格式对应geometry_msgs/Point中的x和y，其中的在值可以直接使用sensor_msgs/NavSatFix中的altitude.
+2. 此包中的唯一节点/utm_odometry_node可以将sensor_msgs/NavSatFix格式的gps信息转化为nav_msgs/Odometry格式信息。

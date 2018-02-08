@@ -1,0 +1,2 @@
+1. 编译时遇到No package 'libgps' found错误。
+解决：sudo apt-get install libgps-dev
