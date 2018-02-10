@@ -634,6 +634,7 @@ namespace RobotLocalization
     return new_data;
   }
 
+  //设置要发布的信息gps_odom
   bool NavSatTransform::prepareGpsOdometry(nav_msgs::Odometry &gps_odom)
   {
     bool new_data = false;
