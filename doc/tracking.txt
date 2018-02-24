@@ -1,0 +1,6 @@
+1. 执行指令：
+（1） 启动gps驱动： roslaunch nmea_navsat_driver gps_driver.launch
+（2） 启动里程计提供者：rosrun robot_localization ekf_localization_node
+（3） 启动imu提供者： roslaunch xsens_driver xsens_driver.launch（需要有串口设备才能使用。）
+（4） 启动gps融合数据：rosrun rot_localization navsat_transform_node
+
