@@ -6,4 +6,4 @@ See: http://ros.org/wiki/ethzasl_xsens_driver
 2. 启动命令：roslaunch xsens_driver xsens_driver.launch
 3. 说明：
 （1） 支持gps数据的处理，转化为sensor_msgs/NavSatFix，没有也没关系，纯imu数据的格式转化。
-（2） 借口支持串口，usb转串口。
+（2） 接口支持串口，usb转串口。
