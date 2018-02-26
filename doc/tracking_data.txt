@@ -1,0 +1,12 @@
+1. 话题：/nmea_sentence
+   结构是nmea_msgs/Sentence，有一个header结构，此结构中frame_id表示的是接收器天线的位置，可以设置为gps。
+   话题中的数据包含经纬度等gps字符串数据。
+2. 话题：/gps/fix
+   结构sensor_msgs/NavSatFix，有一个header结构，其中frame_id与话题/nmea_sentence保持一致，也设置为gps。
+   话题中的数据包含经纬度等gps结构化数据。
+3. 话题：/imu/data
+   结构sensor_msgs/Imu，header中的frame_id可以设为imu，表示imu器件本身，主要包含角速度、线加速度、朝向
+   及其相对应的协方差矩阵。
+4. 话题：/odometry/filtered
+   结构nav_msgs/Odometry，主要包含位姿和速度两项。其中位姿表示child_frame_id在header中的frame_id中的pose，
+   速度表示child_frame_id的速度。这里的里程信息来源于
