@@ -1,8 +1,7 @@
 <launch>
   <node pkg="nmea_navsat_driver" type="nmea_topic_driver" name="nmea_topic_driver">
    
-      <!-- Placeholders for input remapping. Set your topic names as the "to" values.
       <remap from="fix" to="gps/fix" />
-      -->
+      
   </node>
 </launch>

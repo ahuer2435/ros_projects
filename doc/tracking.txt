@@ -16,3 +16,6 @@ a） 读取串口数据：roslaunch xsens_driver xsens_driver.launch
 
 （4） 启动imu和gps融合数据：rosrun robot_localization navsat_transform_node
 
+（5） 正确使用robot_localization包的方式：
+roslaunch robot_localization robot_localization_1.launch
+
