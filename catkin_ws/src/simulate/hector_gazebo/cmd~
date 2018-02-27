@@ -1,0 +1,9 @@
+1. 原始gazebo功能测试。
+roslaunch hector_gazebo_plugins gazebo.launch model:="`rospack find hector_gazebo_plugins`/urdf/robot1_a.urdf"
+
+2. 可以机器人模型中加入gps插件 
+roslaunch hector_gazebo_plugins gazebo.launch model:="`rospack find hector_gazebo_plugins`/urdf/robot1_a.xacro"
+
+3. 原始rviz启动机器人模型测试：
+roslaunch hector_gazebo_plugins display.launch model:="`rospack find hector_gazebo_plugins`/urdf/robot1_1a.xacro"
+
