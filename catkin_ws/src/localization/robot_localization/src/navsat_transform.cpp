@@ -87,6 +87,7 @@ namespace RobotLocalization
     ros::NodeHandle nh_priv("~");
 
     // Load the parameters we need
+    //磁偏角（磁子午线与地理子午线偏角，至于地理位置有关。）
     nh_priv.getParam("magnetic_declination_radians", magnetic_declination_);
     nh_priv.param("yaw_offset", yaw_offset_, 0.0);
     nh_priv.param("broadcast_utm_transform", broadcast_utm_transform_, false);
@@ -126,6 +127,8 @@ namespace RobotLocalization
               "(latitude, longitude, yaw) will be used. frame_ids will be derived from odometry and navsat inputs.");
         }
 
+
+        //手动输入datum 经纬度和方向角
         std::ostringstream ostr;
         ostr << std::setprecision(20) << datum_config[0] << " " << datum_config[1] << " " << datum_config[2];
         std::istringstream istr(ostr.str());
@@ -151,7 +154,7 @@ namespace RobotLocalization
         quat.setRPY(0.0, 0.0, datum_yaw);
         request.geo_pose.orientation = tf2::toMsg(quat);
         robot_localization::SetDatum::Response response;
-        datumCallback(request, response);
+        datumCallback(request, response);         //调用datumCallback服务，手动设置经纬度。
       }
       catch (XmlRpc::XmlRpcException &e)
       {
@@ -309,6 +312,7 @@ namespace RobotLocalization
     }
   }
 
+
   bool NavSatTransform::datumCallback(robot_localization::SetDatum::Request& request,
                                       robot_localization::SetDatum::Response&)
   {
@@ -411,6 +415,8 @@ namespace RobotLocalization
 
     // Remove the offset from base_link
     tf2::Transform gps_offset_rotated;
+
+    //
     bool can_transform = RosFilterUtilities::lookupTransformSafe(tf_buffer_,
                                                                  base_link_frame_id_,
                                                                  gps_frame_id_,
@@ -449,9 +455,10 @@ namespace RobotLocalization
     }
   }
 
+  //将gps数据转化为utm数据，存储于latest_utm_pose_和latest_utm_covariance_变量。
   void NavSatTransform::gpsFixCallback(const sensor_msgs::NavSatFixConstPtr& msg)
   {
-    gps_frame_id_ = msg->header.frame_id;
+    gps_frame_id_ = msg->header.frame_id;     //gps消息frame_id设置gps_frame_id_。
 
     if (gps_frame_id_.empty())
     {
@@ -469,6 +476,7 @@ namespace RobotLocalization
     {
       // If we haven't computed the transform yet, then
       // store this message as the initial GPS data to use
+      //如果是第一帧gps数据，且不使用手动设置datum，则将此帧数据设为utm坐标系的原点，也就是transform_utm_pose_变量。
       if (!transform_good_ && !use_manual_datum_)
       {
         setTransformGps(msg);
@@ -643,18 +651,24 @@ namespace RobotLocalization
     {
       tf2::Transform transformed_utm_gps;
 
+      //utm_world_transform_保存utm-->odom坐标系变换，latest_utm_pose_代表gps接收器在utm坐标系下的坐标，相乘可得gps接收器
+      //在odom坐标系下坐标。
       transformed_utm_gps.mult(utm_world_transform_, latest_utm_pose_);
+      //因为latest_utm_pose_中只有位置，没有朝向，所以设置朝向
       transformed_utm_gps.setRotation(tf2::Quaternion::getIdentity());
 
       // Set header information stamp because we would like to know the robot's position at that timestamp
+      //这里的world_frame_id_应该是odom，里程计坐标系
       gps_odom.header.frame_id = world_frame_id_;
       gps_odom.header.stamp = gps_update_time_;
 
       // Want the pose of the vehicle origin, not the GPS
+      //根据gps在odom下的位置和此位置的时间戳，获取机器人在odom下的位置：transformed_utm_robot。
       tf2::Transform transformed_utm_robot;
       getRobotOriginWorldPose(transformed_utm_gps, transformed_utm_robot, gps_odom.header.stamp);
 
       // Rotate the covariance as well
+      //将旋转矩阵拓展为6x6矩阵，然后对协方差进行旋转。
       tf2::Matrix3x3 rot(utm_world_transform_.getRotation());
       Eigen::MatrixXd rot_6d(POSE_SIZE, POSE_SIZE);
       rot_6d.setIdentity();
@@ -673,10 +687,12 @@ namespace RobotLocalization
       latest_utm_covariance_ = rot_6d * latest_utm_covariance_.eval() * rot_6d.transpose();
 
       // Now fill out the message. Set the orientation to the identity.
+      //从transformed_utm_robot提取位姿信息
       tf2::toMsg(transformed_utm_robot, gps_odom.pose.pose);
       gps_odom.pose.pose.position.z = (zero_altitude_ ? 0.0 : gps_odom.pose.pose.position.z);
 
       // Copy the measurement's covariance matrix so that we can rotate it later
+      //跟新gps_odom中的协方差矩阵。
       for (size_t i = 0; i < POSE_SIZE; i++)
       {
         for (size_t j = 0; j < POSE_SIZE; j++)
@@ -693,6 +709,7 @@ namespace RobotLocalization
     return new_data;
   }
 
+  //将gps 位姿数据转化为utm位姿数据，gps位姿数据设置为utm坐标系的原点和朝向
   void NavSatTransform::setTransformGps(const sensor_msgs::NavSatFixConstPtr& msg)
   {
     double utm_x = 0;
@@ -708,6 +725,7 @@ namespace RobotLocalization
     has_transform_gps_ = true;
   }
 
+  //相当于在第一个gps数据来之前，获取的里程计数据，设置transform_world_pose_，包含base_link在world_frame中的位置。
   void NavSatTransform::setTransformOdometry(const nav_msgs::OdometryConstPtr& msg)
   {
     tf2::fromMsg(msg->pose.pose, transform_world_pose_);
