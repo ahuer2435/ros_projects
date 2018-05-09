@@ -9,7 +9,7 @@
   <param name="broadcast_utm_transform" value="true"/>
   <param name="wait_for_datum" value="false"/>
 
-  <remap from="/gps/fix" to="/gps"/>
+ <remap from="/gps/fix" to="/gps_fix"/>
   <remap from="/imu/data" to="/imu"/>
 </node>
 
@@ -47,6 +47,7 @@
   <param name="print_diagnostics" value="true"/>
   <param name="debug"           value="false"/>
   <param name="debug_out_file"  value="$(env HOME)/adroit_files/debug_ekf_localization.txt"/>
+
 
 </node>
 </launch>

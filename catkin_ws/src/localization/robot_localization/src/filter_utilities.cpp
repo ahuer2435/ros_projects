@@ -126,6 +126,7 @@ namespace FilterUtilities
     }
   }
 
+  //弧度转化为-pi到pi
   double clampRotation(double rotation)
   {
     while (rotation > PI)

@@ -87,7 +87,7 @@ namespace RobotLocalization
     ros::NodeHandle nh_priv("~");
 
     // Load the parameters we need
-    //磁偏角（磁子午线与地理子午线偏角，至于地理位置有关。）
+    //磁偏角（磁子午线与地理子午线偏角，与地理位置有关。）
     nh_priv.getParam("magnetic_declination_radians", magnetic_declination_);
     nh_priv.param("yaw_offset", yaw_offset_, 0.0);
     nh_priv.param("broadcast_utm_transform", broadcast_utm_transform_, false);
@@ -190,7 +190,7 @@ namespace RobotLocalization
     {
       ros::spinOnce();
 
-      if (!transform_good_)
+      if (!transform_good_)     //在函数computeTransform()置为true,在datumCallback中置为false.
       {
         computeTransform();
 
@@ -227,10 +227,7 @@ namespace RobotLocalization
     // Only do this if:
     // 1. We haven't computed the odom_frame->utm_frame transform before
     // 2. We've received the data we need
-    if (!transform_good_ &&
-        has_transform_odom_ &&
-        has_transform_gps_ &&
-        has_transform_imu_)
+    if (!transform_good_ && has_transform_odom_ && has_transform_gps_ && has_transform_imu_)
     {
       // The UTM pose we have is given at the location of the GPS sensor on the robot. We need to get the UTM pose of
       // the robot's origin.
@@ -312,7 +309,7 @@ namespace RobotLocalization
     }
   }
 
-
+//调用此服务,将使用一个gps信息,设置utm坐标系,和odom坐标系与base_link坐标系的关系,
   bool NavSatTransform::datumCallback(robot_localization::SetDatum::Request& request,
                                       robot_localization::SetDatum::Response&)
   {
@@ -361,10 +358,10 @@ namespace RobotLocalization
                                               tf2::Transform &robot_utm_pose,
                                               const ros::Time &transform_time)
   {
-    robot_utm_pose.setIdentity();
+    robot_utm_pose.setIdentity();       //设置变换矩阵为单位矩阵.相当于初始化.
 
     // Get linear offset from origin for the GPS
-    tf2::Transform offset;
+    tf2::Transform offset;              //获取坐标系gps_frame_id_和base_link_frame_id_关系.
     bool can_transform = RosFilterUtilities::lookupTransformSafe(tf_buffer_,
                                                                  base_link_frame_id_,
                                                                  gps_frame_id_,
@@ -375,14 +372,14 @@ namespace RobotLocalization
     if (can_transform)
     {
       // Get the orientation we'll use for our UTM->world transform
-      tf2::Quaternion utm_orientation = transform_orientation_;
-      tf2::Matrix3x3 mat(utm_orientation);
+      tf2::Quaternion utm_orientation = transform_orientation_;         //由imu数据计算出来的朝向.相对于base_link的朝向
+      tf2::Matrix3x3 mat(utm_orientation);                              //四元数转化为旋转矩阵.
 
       // Add the offsets
       double roll;
       double pitch;
       double yaw;
-      mat.getRPY(roll, pitch, yaw);
+      mat.getRPY(roll, pitch, yaw);         //旋转矩阵换转为欧拉角
       yaw += (magnetic_declination_ + yaw_offset_);
       utm_orientation.setRPY(roll, pitch, yaw);
 
@@ -449,13 +446,21 @@ namespace RobotLocalization
       }
     }
     else
-    {
+    {transform_utm_pose_
       ROS_WARN_STREAM_THROTTLE(5.0, "Could not obtain " << base_link_frame_id_ << "->" << gps_frame_id_ <<
         " transform. Will not remove offset of navsat device from robot's origin.");
     }
   }
 
   //将gps数据转化为utm数据，存储于latest_utm_pose_和latest_utm_covariance_变量。
+/*
+ * 不考虑调用datum服务的情况.
+ * 1. 首次调用:
+ *    1.1 设置使用第一次接受的数据,设置utm坐标系的位置.存放与transform_utm_pose_
+ *    1.2 设置has_transform_gps_为true.
+ * 2. 非首次调用:
+ *    1.1 将gps数据转化为utm数据,存储于latest_utm_pose_和latest_utm_covariance_
+*/
   void NavSatTransform::gpsFixCallback(const sensor_msgs::NavSatFixConstPtr& msg)
   {
     gps_frame_id_ = msg->header.frame_id;     //gps消息frame_id设置gps_frame_id_。
@@ -503,9 +508,14 @@ namespace RobotLocalization
     }
   }
 
+/*
+ * 1. 获取imu数据,计算朝向,存储于transform_orientation_.
+ * 2. 注意,这里的计算依赖于base_link坐标系,所以需要等待由odom数据之后,才可以计算朝向.
+ * 3. 设置has_transform_imu_为true.
+*/
   void NavSatTransform::imuCallback(const sensor_msgs::ImuConstPtr& msg)
   {
-    // We need the baseLinkFrameId_ from the odometry message, so
+    // We need the baseLink FrameId_ from the odometry message, so
     // we need to wait until we receive it.
     if (has_transform_odom_)
     {
@@ -516,7 +526,7 @@ namespace RobotLocalization
       tf2::fromMsg(msg->orientation, transform_orientation_);
 
       // Correct for the IMU's orientation w.r.t. base_link
-      tf2::Transform target_frame_trans;
+      tf2::Transform target_frame_trans;            //存储的是base_link_frame_id_和msg->header.frame_id的关系
       bool can_transform = RosFilterUtilities::lookupTransformSafe(tf_buffer_,
                                                                    base_link_frame_id_,
                                                                    msg->header.frame_id,
@@ -532,6 +542,7 @@ namespace RobotLocalization
         double roll = 0;
         double pitch = 0;
         double yaw = 0;
+        //从四元数提取欧拉角
         RosFilterUtilities::quatToRPY(target_frame_trans.getRotation(), roll_offset, pitch_offset, yaw_offset);
         RosFilterUtilities::quatToRPY(transform_orientation_, roll, pitch, yaw);
 
@@ -558,6 +569,13 @@ namespace RobotLocalization
     }
   }
 
+/*
+ * 不考虑调用datum服务的情况.
+ * 1. 首次调用,
+ *    1.1 设置transform_world_pose_,其保存的是world_frame_id_(odom)和base_link_frame_id_(base_link)坐标系之间的关系,相当于设置了odom坐标系.
+ *    1.2 设置has_transform_odom_为true.
+ * 2. 非首次调用,设置latest_world_pose_,存放最新的base_link_frame_id_在world_frame_id_中的位置.
+*/
   void NavSatTransform::odomCallback(const nav_msgs::OdometryConstPtr& msg)
   {
     world_frame_id_ = msg->header.frame_id;
@@ -726,6 +744,8 @@ namespace RobotLocalization
   }
 
   //相当于在第一个gps数据来之前，获取的里程计数据，设置transform_world_pose_，包含base_link在world_frame中的位置。
+  //nav_msgs::Odometry格式的消息,一般是两个坐标系之间的位置和速度关系.通常一个是odom,为fixed frame,两一个为base_link,表示机器人本体.
+  //将类型为nav_msgs::Odometry的消息转化为tf2::Transform格式,格式包含了平移和旋转两个信息.
   void NavSatTransform::setTransformOdometry(const nav_msgs::OdometryConstPtr& msg)
   {
     tf2::fromMsg(msg->pose.pose, transform_world_pose_);
