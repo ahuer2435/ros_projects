@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   roslint
   sensor_msgs
   std_msgs
+  tf
   tf2
   tf2_geometry_msgs
   tf2_ros)
@@ -72,6 +73,7 @@ catkin_package(
     roscpp
     sensor_msgs
     std_msgs
+    tf
     tf2
     tf2_geometry_msgs
     tf2_ros
@@ -101,6 +103,7 @@ add_dependencies(navsat_transform ${PROJECT_NAME}_gencpp)
 add_executable(ekf_localization_node src/ekf_localization_node.cpp)
 add_executable(ukf_localization_node src/ukf_localization_node.cpp)
 add_executable(navsat_transform_node src/navsat_transform_node.cpp)
+add_executable(odometry_test_node src/odometry_test.cpp)
 
 # Linking
 target_link_libraries(ros_filter_utilities ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
@@ -113,6 +116,7 @@ target_link_libraries(ekf_localization_node ros_filter ${catkin_LIBRARIES})
 target_link_libraries(ukf_localization_node ros_filter ${catkin_LIBRARIES})
 target_link_libraries(navsat_transform filter_utilities ros_filter_utilities ${catkin_LIBRARIES} ${EIGEN3_LIBRARIES})
 target_link_libraries(navsat_transform_node navsat_transform ${catkin_LIBRARIES})
+target_link_libraries(odometry_test_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##

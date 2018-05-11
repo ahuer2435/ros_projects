@@ -202,6 +202,7 @@ namespace RobotLocalization
       }
       else
       {
+          //ROS_INFO_STREAM("")
         nav_msgs::Odometry gps_odom;
         if (prepareGpsOdometry(gps_odom))
         {
@@ -231,6 +232,7 @@ namespace RobotLocalization
     {
       // The UTM pose we have is given at the location of the GPS sensor on the robot. We need to get the UTM pose of
       // the robot's origin.
+        //transform_utm_pose_是gps在utm坐标系下的位置,transform_utm_pose_corrected是robot在utm坐标系下的位置.
       tf2::Transform transform_utm_pose_corrected;
       if (!use_manual_datum_)
       {
@@ -280,12 +282,17 @@ namespace RobotLocalization
       // The transform order will be orig_odom_pos * orig_utm_pos_inverse * cur_utm_pos.
       // Doing it this way will allow us to cope with having non-zero odometry position
       // when we get our first GPS message.
+      //utm_pose_with_orientation是在utm坐标系下的位置和朝向.
       tf2::Transform utm_pose_with_orientation;
       utm_pose_with_orientation.setOrigin(transform_utm_pose_corrected.getOrigin());
       utm_pose_with_orientation.setRotation(imu_quat);
 
+      //transform_world_pose_,其保存的是world_frame_id_(odom)和base_link_frame_id_(base_link)坐标系之间的关系
+      //utm_pose_with_orientation保存的是utm坐标系和base_link_frame_id_(base_link)坐标系之间的关系
+      //utm_world_transform_保存的是world_frame_id_(odom)和utm坐标系之间的关系:utm-->odom
       utm_world_transform_.mult(transform_world_pose_, utm_pose_with_orientation.inverse());
 
+      //odom-->utm坐标系转换
       utm_world_trans_inverse_ = utm_world_transform_.inverse();
 
       ROS_INFO_STREAM("Transform world frame pose is: " << transform_world_pose_);
@@ -294,6 +301,7 @@ namespace RobotLocalization
       transform_good_ = true;
 
       // Send out the (static) UTM transform in case anyone else would like to use it.
+      // 发布tf,utm与world_frame_id_之间的变换.
       if (broadcast_utm_transform_)
       {
         geometry_msgs::TransformStamped utm_transform_stamped;
@@ -446,9 +454,8 @@ namespace RobotLocalization
       }
     }
     else
-    {transform_utm_pose_
-      ROS_WARN_STREAM_THROTTLE(5.0, "Could not obtain " << base_link_frame_id_ << "->" << gps_frame_id_ <<
-        " transform. Will not remove offset of navsat device from robot's origin.");
+    {
+        ROS_WARN_STREAM_THROTTLE(5.0, "Could not obtain " << base_link_frame_id_ << "->" << gps_frame_id_ <<" transform. Will not remove offset of navsat device from robot's origin.");
     }
   }
 
@@ -565,6 +572,7 @@ namespace RobotLocalization
                          rpy_angles.getX() << ", " << rpy_angles.getY() << ", " << rpy_angles.getZ() << ")");
 
         has_transform_imu_ = true;
+        ROS_INFO_STREAM("has_transform_imu_ " << has_transform_imu_);
       }
     }
   }
@@ -741,6 +749,7 @@ namespace RobotLocalization
     transform_utm_pose_.setOrigin(tf2::Vector3(utm_x, utm_y, msg->altitude));
     transform_utm_pose_.setRotation(tf2::Quaternion::getIdentity());
     has_transform_gps_ = true;
+    ROS_INFO_STREAM("has_transform_gps_ " << has_transform_gps_);
   }
 
   //相当于在第一个gps数据来之前，获取的里程计数据，设置transform_world_pose_，包含base_link在world_frame中的位置。
@@ -750,8 +759,10 @@ namespace RobotLocalization
   {
     tf2::fromMsg(msg->pose.pose, transform_world_pose_);
     has_transform_odom_ = true;
+    ROS_INFO_STREAM("has_transform_odom_ " << has_transform_odom_);
 
-    ROS_INFO_STREAM("Initial odometry pose is " << transform_world_pose_);
+
+    //ROS_INFO_STREAM("Initial odometry pose is " << transform_world_pose_);
 
     // Users can optionally use the (potentially fused) heading from
     // the odometry source, which may have multiple fused sources of
@@ -767,5 +778,4 @@ namespace RobotLocalization
       imuCallback(imuPtr);
     }
   }
-
 }  // namespace RobotLocalization
