@@ -51,6 +51,11 @@ namespace RobotLocalization
   {
   }
 
+  /*
+     * 输出:
+     * 1. state_: 后验状态.
+     * 2. estimateErrorCovariance_: 后验状态的协方差.
+  */
   void Ekf::correct(const Measurement &measurement)
   {
     FB_DEBUG("---------------------- Ekf::correct ----------------------\n" <<
@@ -65,6 +70,7 @@ namespace RobotLocalization
     // attempt to maximize efficiency in Eigen.
 
     // First, determine how many state vector values we're updating
+    //存储测量矩阵中需要更新的index.
     std::vector<size_t> updateIndices;
     for (size_t i = 0; i < measurement.updateVector_.size(); ++i)
     {
@@ -158,8 +164,10 @@ namespace RobotLocalization
     // (1) Compute the Kalman gain: K = (PH') / (HPH' + R)
     Eigen::MatrixXd pht = estimateErrorCovariance_ * stateToMeasurementSubset.transpose();
     Eigen::MatrixXd hphrInv  = (stateToMeasurementSubset * pht + measurementCovarianceSubset).inverse();
+    //计算卡尔曼增益
     kalmanGainSubset.noalias() = pht * hphrInv;
 
+    //由观测方程得来,z_k-c_k*x_k
     innovationSubset = (measurementSubset - stateSubset);
 
     // Wrap angles in the innovation
@@ -206,6 +214,11 @@ namespace RobotLocalization
     }
   }
 
+  /*
+   * 输出:
+   * 1. state_: 先验状态.
+   * 2. estimateErrorCovariance_: 先验状态的协方差.
+*/
   void Ekf::predict(const double referenceTime, const double delta)
   {
     FB_DEBUG("---------------------- Ekf::predict ----------------------\n" <<
@@ -238,6 +251,7 @@ namespace RobotLocalization
     prepareControl(referenceTime, delta);
 
     // Prepare the transfer function
+    //计算转化矩阵A
     transferFunction_(StateMemberX, StateMemberVx) = cy * cp * delta;
     transferFunction_(StateMemberX, StateMemberVy) = (cy * sp * sr - sy * cr) * delta;
     transferFunction_(StateMemberX, StateMemberVz) = (cy * sp * cr + sy * sr) * delta;
@@ -330,6 +344,7 @@ namespace RobotLocalization
     double dFY_dP = (xCoeff * rollVel + yCoeff * pitchVel + zCoeff * yawVel) * delta;
 
     // Much of the transfer function Jacobian is identical to the transfer function
+    //计算雅克比矩阵
     transferFunctionJacobian_ = transferFunction_;
     transferFunctionJacobian_(StateMemberX, StateMemberRoll) = dFx_dR;
     transferFunctionJacobian_(StateMemberX, StateMemberPitch) = dFx_dP;
@@ -362,6 +377,7 @@ namespace RobotLocalization
     }
 
     // (1) Apply control terms, which are actually accelerations
+    //构建初始状态,后验状态:x_k-1
     state_(StateMemberVroll) += controlAcceleration_(ControlMemberVroll) * delta;
     state_(StateMemberVpitch) += controlAcceleration_(ControlMemberVpitch) * delta;
     state_(StateMemberVyaw) += controlAcceleration_(ControlMemberVyaw) * delta;
@@ -374,6 +390,7 @@ namespace RobotLocalization
       controlAcceleration_(ControlMemberVz) : state_(StateMemberAz));
 
     // (2) Project the state forward: x = Ax + Bu (really, x = f(x, u))
+    // 预测阶段,由后验状态构建先验状态x_k,
     state_ = transferFunction_ * state_;
 
     // Handle wrapping
@@ -383,6 +400,7 @@ namespace RobotLocalization
              "\nCurrent estimate error covariance is:\n" <<  estimateErrorCovariance_ << "\n");
 
     // (3) Project the error forward: P = J * P * J' + Q
+    //构建先验状态x_k的协方差矩阵.
     estimateErrorCovariance_ = (transferFunctionJacobian_ *
                                 estimateErrorCovariance_ *
                                 transferFunctionJacobian_.transpose());

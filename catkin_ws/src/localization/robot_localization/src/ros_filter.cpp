@@ -911,6 +911,7 @@ namespace RobotLocalization
              "\nprint_diagnostics is " << (printDiagnostics_ ? "true" : "false") << "\n");
 
     // Create a subscriber for manually setting/resetting pose
+    //相当于给定一个初始位置.
     setPoseSub_ = nh_.subscribe("set_pose",
                                 1,
                                 &RosFilter<T>::setPoseCallback,
@@ -920,6 +921,7 @@ namespace RobotLocalization
     setPoseSrv_ = nh_.advertiseService("set_pose", &RosFilter<T>::setPoseSrvCallback, this);
 
     // Init the last last measurement time so we don't get a huge initial delta
+    //更新测量时间和更新时间
     filter_.setLastMeasurementTime(ros::Time::now().toSec());
     filter_.setLastUpdateTime(ros::Time::now().toSec());
 
@@ -1722,6 +1724,7 @@ namespace RobotLocalization
     RF_DEBUG("\n----- /RosFilter::poseCallback (" << topicName << ") ------\n");
   }
 
+  //主入口
   template<typename T>
   void RosFilter<T>::run()
   {

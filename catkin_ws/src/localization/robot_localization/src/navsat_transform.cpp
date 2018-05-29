@@ -609,6 +609,11 @@ namespace RobotLocalization
   }
 
 
+  //将里程计信息转化为gps信息
+  /*
+   * latest_world_pose_:里程计的最新定位信息.utm_world_trans_inverse_是odom-->utm坐标系转换
+   * odom_as_utm: base_link->utm,这个数据可以转化为经纬度.
+*/
   bool NavSatTransform::prepareFilteredGps(sensor_msgs::NavSatFix &filtered_gps)
   {
     bool new_data = false;
